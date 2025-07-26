@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tuduzi - Inbox</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    /* Same styles as before (unchanged) */
+    body {
+      background: #121212;
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: #f8f8f8;
+    }
+
+    nav.navbar {
+      background-color: #ff69b4;
+      box-shadow: 0 2px 4px rgba(255,105,180,0.3);
+    }
+
+    .navbar-brand.stylish {
+      font-size: 2.2rem;
+      font-weight: 900;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, #ff69b4, #ffffff, #ff69b4);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shine 3s linear infinite;
+    }
+
+    @keyframes shine {
+      0% { background-position: 200% center; }
+      100% { background-position: -200% center; }
+    }
+
+    .nav-link {
+      color: black !important;
+      font-weight: 600;
+      border: 1px solid black;
+      border-radius: 20px;
+      margin-left: 10px;
+      padding: 5px 15px;
+      transition: background-color .3s, color .3s;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background-color: black;
+      color: #ff69b4 !important;
+    }
+
+    .container {
+      flex-grow: 1;
+      max-width: 700px;
+      margin: 2rem auto 5rem;
+      padding: 0 1rem;
+    }
+
+    h3 {
+      text-align: center;
+      color: #ff69b4;
+    }
+
+    #date, #taskCount {
+      text-align: center;
+      color: #ccc;
+      font-size: 1rem;
+    }
+
+    .input-group {
+      margin-top: 1.5rem;
+      box-shadow: 0 1px 3px rgba(255, 105, 180, 0.2);
+    }
+
+    #taskInput {
+      border-radius: 0.5rem 0 0 0.5rem;
+      border-right: none;
+      font-size: 1rem;
+      background-color: #222;
+      color: #fff;
+      border: 1px solid #444;
+    }
+
+    .input-group .btn {
+      border-radius: 0 0.5rem 0.5rem 0;
+      background-color: #ff69b4;
+      border: none;
+      color: black;
+    }
+
+    #taskList {
+      margin-top: 2.5rem;
+    }
+
+    .task-card {
+      background: #1e1e1e;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      border-left: 5px solid #ff69b4;
+    }
+
+    .task-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .check-icon {
+      font-size: 1.25rem;
+      cursor: pointer;
+    }
+
+    .check-icon.unchecked {
+      color: #999;
+    }
+
+    .check-icon.checked {
+      color: #32cd32;
+    }
+
+    .task-completed {
+      text-decoration: line-through;
+      color: #888;
+      font-style: italic;
+    }
+
+    .btn-outline-danger {
+      border-color: #ff69b4;
+      color: #ff69b4;
+    }
+
+    .btn-outline-danger:hover {
+      background-color: #ff69b4;
+      color: black;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand">
+    <div class="container">
+      <a class="navbar-brand stylish me-auto" href="#">Tuduzi</a>
+      <div class="navbar-nav">
+        <a class="nav-link active" href="inbox.html">Inbox</a>
+        <a class="nav-link" href="myprofile.html">My Profile</a>
+        <a class="nav-link" href="notes.html">Notes</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h3 style="font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; font-style: italic;">Hello Aarthi !</h3>
+    <p id="date"></p>
+    <p id="taskCount"></p>
+
+    <div class="input-group">
+      <input type="text" id="taskInput" class="form-control" placeholder="Add a new task...">
+      <button class="btn" onclick="addTask()"><i class="bi bi-plus-lg"></i></button>
+    </div>
+
+    <div id="taskList"></div>
+  </div>
+
+  <script>
+    function formatDate() {
+      const options = { weekday: 'long', month: 'short', day: 'numeric' };
+      document.getElementById('date').textContent = new Date().toLocaleDateString('en-US', options);
+    }
+
+    function renderTasks() {
+      const taskList = document.getElementById('taskList');
+      const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      taskList.innerHTML = '';
+      let todayCount = 0;
+
+      tasks.forEach((task, index) => {
+        const card = document.createElement('div');
+        card.className = 'task-card';
+
+        const iconClass = task.completed ? 'bi-check-circle-fill checked' : 'bi-circle unchecked';
+        const textClass = task.completed ? 'task-completed' : '';
+
+        card.innerHTML = `
+          <div class="task-left">
+            <i class="bi ${iconClass} check-icon" onclick="toggleComplete(${index})"></i>
+            <span class="${textClass}">${task.text}</span>
+          </div>
+          <div>
+            <button class="btn btn-outline-danger btn-sm" onclick="deleteTask(${index})">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        `;
+
+        taskList.appendChild(card);
+
+        if (new Date(task.createdAt).toDateString() === new Date().toDateString()) {
+          todayCount++;
+        }
+      });
+
+      document.getElementById('taskCount').textContent = `You have ${todayCount} task(s) today.`;
+    }
+
+    function addTask() {
+      const input = document.getElementById('taskInput');
+      const value = input.value.trim();
+      if (!value) return;
+
+      const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      tasks.push({ text: value, completed: false, createdAt: new Date().toISOString() });
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      input.value = '';
+      renderTasks();
+    }
+
+    function toggleComplete(index) {
+      const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      tasks[index].completed = !tasks[index].completed;
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      renderTasks();
+    }
+
+    function deleteTask(index) {
+      const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      tasks.splice(index, 1);
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      renderTasks();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      formatDate();
+      renderTasks();
+    });
+  </script>
+</body>
+</html>
