@@ -1,0 +1,216 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF‑8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tuduzi – Notes</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+  <style>
+    body {
+      background: #121212;
+      color: #f8f8f8;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    nav.navbar {
+      background-color: #ff69b4;
+      box-shadow: 0 2px 4px rgba(255,105,180,0.3);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .navbar-brand.stylish {
+      font-size: 2.2rem;
+      font-weight: 900;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, #ff69b4, #ffffff, #ff69b4);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shine 3s linear infinite;
+    }
+
+    @keyframes shine {
+      0% { background-position: 200% center; }
+      100% { background-position: -200% center; }
+    }
+
+    .nav-link {
+      color: black !important;
+      font-weight: 600;
+      border: 1px solid black;
+      border-radius: 20px;
+      margin-left: 10px;
+      padding: 5px 15px;
+      transition: background-color .3s, color .3s;
+    }
+
+    .nav-link.active, .nav-link:hover {
+      background-color: black;
+      color: #ff69b4 !important;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 4rem auto 2rem;
+      padding: 0 1rem;
+      flex-grow: 1;
+    }
+
+    h3 {
+      text-align: center;
+      color: #ff69b4;
+      margin-bottom: 1rem;
+      font-style: italic;
+    }
+
+    .note-entry {
+      margin-bottom: 2rem;
+    }
+
+    .note-entry input[type="date"] {
+      background-color: #1e1e1e;
+      border: 1px solid #ff69b4;
+      border-radius: 0.5rem;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      margin-bottom: 0.5rem;
+      width: 100%;
+    }
+
+    .note-entry textarea {
+      width: 100%;
+      background-color: #1e1e1e;
+      color: #fff;
+      border: 1px solid #ff69b4;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      min-height: 200px;
+      resize: vertical;
+      font-size: 1rem;
+    }
+
+    .down-arrow-btn {
+      display: flex;
+      justify-content: center;
+      margin-top: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .down-arrow-btn button {
+      background: none;
+      border: none;
+      color: #ff69b4;
+      font-size: 2.5rem;
+      transition: transform 0.2s;
+    }
+
+    .down-arrow-btn button:hover {
+      transform: scale(1.2);
+      color: white;
+    }
+
+    footer {
+      text-align: center;
+      color: #888;
+      padding: 1rem;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand">
+    <div class="container">
+      <a class="navbar-brand stylish me-auto" href="#">Tuduzi</a>
+      <div class="navbar-nav">
+        <a class="nav-link" href="inbox.html">Inbox</a>
+        <a class="nav-link" href="myprofile.html">My Profile</a>
+        <a class="nav-link active" href="notes.html">Notes</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h3>🌸 Daily Notes</h3>
+
+    <!-- Notes List -->
+    <div id="notesContainer"></div>
+
+    <!-- Add New Note Arrow -->
+    <div class="down-arrow-btn">
+      <button onclick="addNoteEntry()">
+        <i class="bi bi-arrow-down-circle-fill"></i>
+      </button>
+    </div>
+  </div>
+
+  <footer>Your notes are saved with the selected date ❤️</footer>
+
+  <script>
+    let noteIndex = 0;
+
+    function addNoteEntry(dateValue = new Date().toISOString().split("T")[0], noteText = '') {
+      noteIndex++;
+      const container = document.getElementById("notesContainer");
+
+      // Create wrapper
+      const noteDiv = document.createElement("div");
+      noteDiv.className = "note-entry";
+
+      // Create date input
+      const dateInput = document.createElement("input");
+      dateInput.type = "date";
+      dateInput.value = dateValue;
+
+      // Create textarea
+      const textarea = document.createElement("textarea");
+      textarea.placeholder = `Note #${noteIndex}`;
+      textarea.value = noteText;
+
+      // Save when typing
+      textarea.addEventListener("input", () => {
+        const key = `note_${dateInput.value}_entry_${noteIndex}`;
+        localStorage.setItem(key, textarea.value);
+      });
+
+      // Save when changing date
+      dateInput.addEventListener("change", () => {
+        const oldKey = `note_${dateValue}_entry_${noteIndex}`;
+        const newKey = `note_${dateInput.value}_entry_${noteIndex}`;
+        localStorage.setItem(newKey, textarea.value);
+        localStorage.removeItem(oldKey);
+        dateValue = dateInput.value;
+      });
+
+      // Append elements
+      noteDiv.appendChild(dateInput);
+      noteDiv.appendChild(textarea);
+      container.appendChild(noteDiv);
+    }
+
+    // Load notes on page load
+    window.onload = function () {
+      const allKeys = Object.keys(localStorage).filter(k => k.startsWith("note_") && k.includes("_entry_"));
+      allKeys.forEach(k => {
+        const parts = k.split("_");
+        const date = parts[1];
+        const index = parts[3];
+        const text = localStorage.getItem(k);
+        addNoteEntry(date, text);
+      });
+
+      if (allKeys.length === 0) {
+        addNoteEntry();
+      }
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tuduzi - My Profile</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    /* Same styles as before */
+    body {
+      background: #121212;
+      color: #f8f8f8;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    nav.navbar {
+      background-color: #ff69b4;
+      box-shadow: 0 2px 4px rgba(255,105,180,0.3);
+    }
+
+    .navbar-brand.stylish {
+      font-size: 2.2rem;
+      font-weight: 900;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, #ff69b4, #ffffff, #ff69b4);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shine 3s linear infinite;
+    }
+
+    @keyframes shine {
+      0% { background-position: 200% center; }
+      100% { background-position: -200% center; }
+    }
+
+    .nav-link {
+      color: black !important;
+      font-weight: 600;
+      border: 1px solid black;
+      border-radius: 20px;
+      margin-left: 10px;
+      padding: 5px 15px;
+      transition: background-color .3s, color .3s;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background-color: black;
+      color: #ff69b4 !important;
+    }
+
+    .container {
+      flex-grow: 1;
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+
+    h3 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #ff69b4;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card-box {
+      background: #1e1e1e;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 8px rgba(255,105,180,0.2);
+      text-align: center;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .card-box:hover {
+      transform: translateY(-5px);
+    }
+
+    .card-box i {
+      font-size: 2rem;
+      margin-bottom: 0.75rem;
+      color: #ff69b4;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      color: #ccc;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-value {
+      font-size: 1.5rem;
+      color: #fff;
+      font-weight: bold;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      font-size: .9rem;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand">
+    <div class="container">
+      <a class="navbar-brand stylish me-auto" href="#">Tuduzi</a>
+      <div class="navbar-nav">
+        <a class="nav-link" href="inbox.html">Inbox</a>
+        <a class="nav-link active" href="myprofile.html">My Profile</a>
+        <a class="nav-link" href="notes.html">Notes</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h3 style="font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; font-style: italic;">Welcome, Aarthi 🌟</h3>
+    <div class="profile-grid">
+      <div class="card-box">
+        <i class="bi bi-person-circle"></i>
+        <div class="card-title">Name</div>
+        <div class="card-value" id="profileName">Aarthi</div>
+      </div>
+      <div class="card-box">
+        <i class="bi bi-fire"></i>
+        <div class="card-title">Current Streak</div>
+        <div class="card-value" id="profileStreak">0 Days</div>
+      </div>
+      <div class="card-box">
+        <i class="bi bi-check2-circle"></i>
+        <div class="card-title">Tasks Completed</div>
+        <div class="card-value" id="profileCompleted">0</div>
+      </div>
+      <div class="card-box">
+        <i class="bi bi-list-task"></i>
+        <div class="card-title">Tasks To Do</div>
+        <div class="card-value" id="profilePending">0</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Keep it up, you're doing amazing 💪
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      let completed = 0, pending = 0;
+      let dates = {};
+
+      tasks.forEach(t => {
+        t.completed ? completed++ : pending++;
+        if (t.completed) {
+          const d = new Date(t.createdAt).toDateString();
+          dates[d] = true;
+        }
+      });
+
+      // Calculate streak
+      let streak = 0;
+      let today = new Date();
+      while (true) {
+        const key = today.toDateString();
+        if (dates[key]) { streak++; }
+        else break;
+        today.setDate(today.getDate() - 1);
+      }
+
+      document.getElementById('profileName').textContent = 'Aarthi';
+      document.getElementById('profileStreak').textContent = `${streak} Day${streak !== 1 ? 's' : ''}`;
+      document.getElementById('profileCompleted').textContent = completed;
+      document.getElementById('profilePending').textContent = pending;
+    });
+  </script>
+</body>
+</html>
